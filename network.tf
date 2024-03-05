@@ -13,7 +13,7 @@ resource "aws_subnet" "public_subnet_1" {
   vpc_id            = aws_vpc.custom_vpc.id
   cidr_block        = "10.0.1.0/24"
   availability_zone = "us-west-2a"
-  map_public_ip_on_launch = true
+  map_public_ip_on_launch = false
 
   tags = {
     Name = "PublicSubnet1"
@@ -24,7 +24,7 @@ resource "aws_subnet" "public_subnet_2" {
   vpc_id            = aws_vpc.custom_vpc.id
   cidr_block        = "10.0.2.0/24"
   availability_zone = "us-west-2b"
-  map_public_ip_on_launch = true
+  map_public_ip_on_launch = false
 
   tags = {
     Name = "PublicSubnet2"
@@ -52,4 +52,11 @@ resource "aws_route_table_association" "public_subnet_1_association" {
 resource "aws_route_table_association" "public_subnet_2_association" {
   subnet_id      = aws_subnet.public_subnet_2.id
   route_table_id = aws_route_table.public_route_table.id
+}
+
+resource "aws_flow_log" "flow_logs" {
+	iam_role_arn = "arn"
+	log_destination = "log"
+	traffic_type = "ALL"
+	vpc_id = aws_vpc.custom_vpc.id
 }

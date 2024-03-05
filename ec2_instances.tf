@@ -21,6 +21,7 @@ resource "aws_instance" "ec2_instance_1" {
   tags = {
     Name = "EC2Instance1"
   }
+  iam_instance_profile = "test"
 }
 
 resource "aws_instance" "ec2_instance_2" {
@@ -46,4 +47,5 @@ resource "aws_instance" "ec2_instance_2" {
   tags = {
     Name = "EC2Instance2"
   }
+  iam_instance_profile = "test"
 }
