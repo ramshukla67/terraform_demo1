@@ -21,6 +21,8 @@ resource "aws_s3_bucket_public_access_block" "access_terraform_state" {
 	bucket = aws_s3_bucket.terraform_state.id
 	block_public_acls = true
 	block_public_policy = true
+	ignore_public_acls=true
+	restrict_public_buckets = true
 }
 
 resource "aws_s3_bucket_logging" "logging" {
@@ -31,6 +33,7 @@ resource "aws_s3_bucket_logging" "logging" {
 
 resource "aws_sns_topic" "bucket_notifications" {
 	name = "bucket-notifications"
+	kms_master_key_id = "alias/aws/sns"
 }
 
 resource "aws_s3_bucket_notification" "bucket-notification" {
@@ -45,7 +48,7 @@ resource "aws_s3_bucket_notification" "bucket-notification" {
 resource "aws_s3_bucket_server_side_encription_configuration" "sse_good" {
 	bucket = aws_s3_bucket.terraform_state.bucket
 	rule {
-		apply_server_side_encription_by_default {
+		apply_server_side_encryption_by_default {
 			kms_master_key_id = aws_kms_key.mykey.arn
 			sse_algorithm = "aws:kms"
 		}
