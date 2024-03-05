@@ -55,12 +55,12 @@ resource "aws_route_table_association" "public_subnet_2_association" {
 }
 
 resource "aws_flow_log" "flow_logs" {
-	iam_role_arn = "arn"
-	log_destination = "log"
+	iam_role_arn = "arn:aws:iam::684876534607:role/jenkins-user"
+	log_destination = "arn:aws:s3:::terraform-s3-for-state-file"
 	traffic_type = "ALL"
 	vpc_id = aws_vpc.custom_vpc.id
 }
 
 resource "aws_default_security_group" "default" {
-	vpc_id = aws_vpc.issue_vpc.id
+	vpc_id = aws_vpc.custom_vpc.id
 }
