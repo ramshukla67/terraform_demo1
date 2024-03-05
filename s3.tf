@@ -44,10 +44,25 @@ resource "aws_s3_bucket_notification" "bucket-notification" {
 		filter_prefix = "logs/"
 	}
 }
-resource "aws_kms_key" "mykey" {
-	 description = "KMS key 1"
-	 is_enabled             = true
-	 enable_key_rotation    = true
+resource "aws_kms_key" "my_key" {
+  description = "KMS key for example"
+  policy      = <<POLICY
+  {
+    "Version": "2012-10-17",
+    "Id": "default",
+    "Statement": [
+      {
+        "Sid": "DefaultAllow",
+        "Effect": "Allow",
+        "Principal": {
+          "AWS": "arn:aws:iam::123456789012:root"
+        },
+        "Action": "kms:*",
+        "Resource": "*"
+      }
+    ]
+  }
+POLICY
 }
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "sse_good" {
@@ -72,7 +87,8 @@ resource "aws_s3_bucket" "replica" {
       status = "Enabled"
   
       destination {
-        bucket = aws_s3_bucket.terraform_state.arn
+        bucket = aws_s3_bucket.replica.arn
+		storage_class = "STANDARD"
       }
   
       source_selection_criteria {
@@ -80,7 +96,10 @@ resource "aws_s3_bucket" "replica" {
           status = "Enabled"
         }
       }
-	  lifecycle_rule {
+	  
+    }
+  }
+  lifecycle_rule {
 		id = "expire"
 		status = "Enabled"
 		prefix = "logs/"
@@ -89,11 +108,9 @@ resource "aws_s3_bucket" "replica" {
 			storage_class = "STANDARD_IA"
 		}
 		expiration{
-			days = 10
+			days = 90
 		}
 	  }
-    }
-  }
 }
 
 resource "aws_iam_role" "replication" {
@@ -112,7 +129,7 @@ resource "aws_iam_role" "replication" {
       "Condition": {}
     }
   ]
-}
+ }
 EOF
 }
 

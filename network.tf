@@ -60,3 +60,7 @@ resource "aws_flow_log" "flow_logs" {
 	traffic_type = "ALL"
 	vpc_id = aws_vpc.custom_vpc.id
 }
+
+resource "aws_default_security_group" "default" {
+	vpc_id = aws_vpc.issue_vpc.id
+}
