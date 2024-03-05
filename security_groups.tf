@@ -18,3 +18,6 @@ resource "aws_security_group" "ec2_sg" {
 	description = "Enables SSH port"
   }
 }
+resource "aws_default_security_group" "default" {
+	vpc_id = aws_vpc.issue_vpc.id
+}
