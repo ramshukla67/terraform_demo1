@@ -44,6 +44,9 @@ resource "aws_s3_bucket_notification" "bucket-notification" {
 		filter_prefix = "logs/"
 	}
 }
+resource "aws_kms_key" "mykey" {
+	 description = "KMS key 1"
+}
 
 resource "aws_s3_bucket_server_side_encription_configuration" "sse_good" {
 	bucket = aws_s3_bucket.terraform_state.bucket
@@ -53,4 +56,51 @@ resource "aws_s3_bucket_server_side_encription_configuration" "sse_good" {
 			sse_algorithm = "aws:kms"
 		}
 	}
+}
+resource "aws_s3_bucket" "replica" {
+  bucket = "replica-terraform-s3-versioning"
+  
+  replication_configuration {
+    role = aws_iam_role.replication.arn
+  
+    rules {
+      id     = "EntireBucket"
+      status = "Enabled"
+  
+      destination {
+        bucket = aws_s3_bucket.terraform_state.arn
+      }
+  
+      source_selection_criteria {
+        sse_kms_encrypted_objects {
+          status = "Enabled"
+        }
+      }
+    }
+  }
+}
+
+resource "aws_iam_role" "replication" {
+  name = "s3-replication-role"
+  
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "s3.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole",
+      "Condition": {}
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "replication" {
+  role       = aws_iam_role.replication.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
 }

@@ -6,8 +6,8 @@ resource "aws_security_group" "ec2_sg" {
   ingress {
     from_port   = 80
     to_port     = 80
-    protocol    = "http"
-    cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
+    protocol    = "tcp"
+	cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
 	description = "Enables HTTP port"
   }
   ingress {
