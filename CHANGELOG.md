@@ -1,3 +1,8 @@
+## [0e12bd5] - 2024-03-05
+### 4th Itter Checkov fixes
+
+Added S3 replication infrastructure with encryption and disaster recovery capabilities. Implemented a replica S3 bucket (`replica-terraform-s3-versioning`) configured to replicate objects from the primary state bucket, with an associated KMS key (`mykey`) for server-side encryption and an IAM service role with appropriate S3 permissions. Also corrected security group ingress rule by changing the protocol from "http" to "tcp" to align with AWS security best practices and Checkov compliance requirements.
+
 ## [5dd721f] - 2024-03-05
 ### Final fix for checkov
 Fixed Checkov security compliance issues in Terraform configurations across network.tf and s3.tf by correcting invalid placeholder values, fixing syntax errors (typos in resource attributes), updating deprecated S3 lifecycle rule syntax, removing duplicate resource definitions, consolidating replication configuration into the primary S3 bucket, and enabling KMS key rotation—these are infrastructure-as-code maintenance fixes with no new features or user-visible behavior changes.
