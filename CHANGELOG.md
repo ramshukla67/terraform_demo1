@@ -1,3 +1,27 @@
+## [f431c1e] - 2024-03-05
+### Adding Checkov fixes
+
+Applied comprehensive security hardening to AWS Terraform infrastructure configuration to pass Checkov compliance scanning:
+
+**EC2 Instances (ec2_instances.tf)**
+- Added encrypted root block device configuration on both instances
+- Enabled IMDSv2 with token-based access to prevent SSRF attacks
+- Enabled detailed CloudWatch monitoring
+- Enabled EBS optimization for improved security and performance
+
+**S3 Buckets (s3.tf)**
+- Added lifecycle rules to transition logs to cheaper storage (STANDARD_IA after 30 days) and expire after 10 days
+- Added S3 bucket public access block to prevent accidental public exposure
+- Configured S3 bucket logging to terraform_state for access audit trail
+
+**Security Groups (security_groups.tf)**
+- Added descriptive labels to all ingress rules for compliance and audit purposes
+- Corrected HTTP protocol specification (changed from "tcp" to "http")
+- Added self-referencing ingress rule for internal EC2-to-EC2 communication
+- Fixed indentation inconsistencies
+
+These changes address Checkov violations related to encryption, monitoring, public access, and documentation requirements.
+
 ## [ed66141] - 2024-03-05
 ### 3nd Itter Checkov fixes
 Security and compliance fixes to the S3 bucket Terraform configuration addressing Checkov linting issues: added missing public access block settings (ignore_public_acls and restrict_public_buckets), enabled KMS encryption for SNS topic notifications, and corrected a typo in the server-side encryption configuration block name.
