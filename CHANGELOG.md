@@ -1,3 +1,27 @@
+## [7f9842c] - 2024-03-05
+### 5th Iteration Checkov Fixes
+
+Implemented comprehensive security hardening across Terraform configurations to address Checkov security scanning findings. Fixed a resource name typo (`aws_s3_bucket_server_side_encription_configuration` → `aws_s3_bucket_server_side_encryption_configuration`) and added multiple security controls.
+
+**S3 Bucket Enhancements:**
+- Enabled versioning on replica bucket to protect against accidental deletion and maintain object history
+- Added S3 bucket logging to capture access logs to a target bucket with `log/` prefix
+- Implemented public access blocking with all four controls enabled: `block_public_acls`, `block_public_policy`, `ignore_public_acls`, `restrict_public_buckets`
+- Added lifecycle rules to transition objects to STANDARD_IA storage class after 30 days and expire after 10 days
+- Created separate server-side encryption configuration for replica bucket with KMS master key
+
+**KMS Key Improvements:**
+- Enabled automatic key rotation (`enable_key_rotation = true`) for improved key security
+- Explicitly set `is_enabled = true` on KMS key resource
+
+**Security Group Configuration:**
+- Added default security group resource with explicit VPC association for `issue_vpc`
+
+**Replication & Notifications:**
+- Configured SNS topic notifications for S3 object creation events on replica bucket with filtering for `logs/` prefix
+
+These changes align with AWS security best practices and Checkov compliance requirements for encryption, access control, logging, and key management.
+
 ## [0e12bd5] - 2024-03-05
 ### 4th Itter Checkov fixes
 
