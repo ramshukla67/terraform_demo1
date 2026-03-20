@@ -1,3 +1,7 @@
+## [ed66141] - 2024-03-05
+### 3nd Itter Checkov fixes
+Security and compliance fixes to the S3 bucket Terraform configuration addressing Checkov linting issues: added missing public access block settings (ignore_public_acls and restrict_public_buckets), enabled KMS encryption for SNS topic notifications, and corrected a typo in the server-side encryption configuration block name.
+
 ## [91696c7] - 2024-03-05
 ### 6th Itter Checkov fixes
 Code cleanup and infrastructure configuration adjustments in Terraform files: reorganized default security group resource from security_groups.tf to network.tf, renamed KMS key resource and added explicit KMS policy, fixed S3 replication bucket reference and lifecycle rule indentation, and adjusted S3 expiration retention from 10 to 90 days.
