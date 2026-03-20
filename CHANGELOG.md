@@ -6,6 +6,17 @@ Security and compliance fixes to the S3 bucket Terraform configuration addressin
 ### 6th Itter Checkov fixes
 Code cleanup and infrastructure configuration adjustments in Terraform files: reorganized default security group resource from security_groups.tf to network.tf, renamed KMS key resource and added explicit KMS policy, fixed S3 replication bucket reference and lifecycle rule indentation, and adjusted S3 expiration retention from 10 to 90 days.
 
+## [f137367] - 2024-03-04
+### Fix ssh issue
+
+Resolved SSH connectivity issues with EC2 instances by making three key changes:
+
+1. **Added SSH ingress rule** to the security group (port 22, 0.0.0.0/0) to allow remote access to instances.
+2. **Associated security groups with EC2 instances** by adding `vpc_security_group_ids` parameter to both EC2 instance definitions.
+3. **Enabled public routing** by creating an Internet Gateway, public route table, and route table associations for both public subnets, ensuring instances can reach external networks.
+
+These changes enable SSH access to the EC2 instances while maintaining proper network segmentation through VPC and subnet configuration.
+
 ## [cd4e008] - 2024-03-04
 ### Initial Submit
 
