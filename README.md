@@ -247,31 +247,28 @@ The infrastructure implements the following security hardening measures:
 
 ## File Structure
 
-- `ec2_instances.tf` - EC2 instance configuration with hardened defaults
-- `s3.tf` - S3 bucket definitions with lifecycle and access control policies
-- `security_groups.tf` - VPC security group rules with descriptions
-- Additional supporting files for VPC, subnets, and networking
+- `s3.tf`: S3 bucket resources, replication, logging, encryption, and KMS key configuration
+- `security_groups.tf`: EC2 and VPC security group definitions
 
 ## System Architecture
 
 ```mermaid
-graph TD
-    EC2_1["EC2 Instance 1<br/>t2.micro<br/>Encrypted Root"]
-    EC2_2["EC2 Instance 2<br/>t2.micro<br/>Encrypted Root"]
-    SG["Security Group<br/>HTTP/SSH/Self"]
-    S3_State["S3 Bucket<br/>Terraform State<br/>Versioned"]
-    S3_Logs["S3 Bucket<br/>Access Logs"]
-    PubSubnet1["Public Subnet 1"]
-    PubSubnet2["Public Subnet 2"]
-    VPC["VPC"]
-    
-    VPC --> PubSubnet1
-    VPC --> PubSubnet2
-    PubSubnet1 --> EC2_1
-    PubSubnet2 --> EC2_2
-    EC2_1 --> SG
-    EC2_2 --> SG
-    S3_State --> S3_Logs
+flowchart TD
+    A[S3 Bucket - terraform_state] --> B[KMS Key]
+    A --> C[Server-Side Encryption Config]
+    D[S3 Bucket - replica] --> E[Versioning]
+    D --> F[Replication Configuration]
+    D --> G[Public Access Block]
+    D --> H[S3 Logging]
+    D --> I[Lifecycle Rules]
+    D --> J[SNS Notification]
+    D --> K[Server-Side Encryption]
+    K --> B
+    F --> L[IAM Role]
+    L --> M[S3 Full Access Policy]
+    N[VPC] --> O[EC2 Security Group]
+    N --> P[Default Security Group]
+    O --> Q[SSH Access Port 22]
 ```
 
 ### S3 Storage with Encryption and Replication
@@ -283,9 +280,8 @@ graph TD
 
 ### Security Groups
 
-- **EC2 Security Group**: `ec2_sg` - Manages ingress rules for EC2 instances
-  - HTTP (port 80) access restricted to CIDR blocks 10.0.1.0/24 and 10.0.2.0/24
-  - TCP protocol correctly configured per security best practices
+- **Network Access Control**: EC2 security groups restrict inbound traffic to SSH (port 22)
+- **Default SG Management**: Custom default security group configuration for VPCs
 
 ## Terraform Resources
 
@@ -315,3 +311,32 @@ graph TD
 - S3 replication is configured with source encryption selection criteria
 - Security groups use TCP protocol as specified by Checkov security standards
 - IAM replication role follows the principle of least privilege for S3 operations
+
+# AWS Terraform Security Configuration
+
+This repository contains Terraform configurations for AWS infrastructure with a focus on security best practices and compliance.
+
+## Features
+
+### S3 Bucket Security
+
+- **Server-side Encryption**: All S3 buckets configured with KMS encryption using customer-managed keys
+- **Versioning**: Enabled on replica buckets to maintain object history and prevent accidental deletion
+- **Public Access Blocking**: All public access controls enforced via `aws_s3_bucket_public_access_block`
+- **Logging**: S3 access logs sent to designated target bucket with configurable prefix
+- **Lifecycle Management**: Automated rules for object transitions to cost-effective storage classes and expiration
+- **Replication**: Cross-bucket replication configuration with filtered event notifications
+
+### KMS Key Management
+
+- **Key Rotation**: Enabled on all KMS keys for enhanced security (via `enable_key_rotation`)
+- **Key Status**: Keys explicitly enabled for use
+
+## Security Compliance
+
+This configuration addresses Checkov scanning requirements:
+- CKV_AWS_26: Ensure S3 bucket has versioning enabled
+- CKV_AWS_28: Ensure S3 bucket has public access blocked
+- CKV_AWS_33: Ensure KMS keys are rotated
+- CKV_AWS_56: Ensure S3 bucket has server-side encryption enabled
+- CKV_AWS_62: Ensure S3 bucket has logging enabled
