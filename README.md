@@ -64,6 +64,8 @@ This Terraform configuration creates a complete AWS infrastructure with:
 
 ## Usage
 
+Initialize and apply the Terraform configuration:
+
 ```bash
 terraform init
 terraform plan
@@ -156,7 +158,7 @@ This infrastructure configuration passes Checkov security scanning and implement
 
 # Terraform AWS Infrastructure
 
-This repository contains Terraform configurations for AWS infrastructure deployment.
+This repository contains Terraform configurations for deploying AWS infrastructure including EC2 instances, S3 buckets with replication and encryption, and security groups.
 
 ## Architecture
 
@@ -271,3 +273,45 @@ graph TD
     EC2_2 --> SG
     S3_State --> S3_Logs
 ```
+
+### S3 Storage with Encryption and Replication
+
+- **Primary Bucket**: `terraform_state` - Main S3 bucket for state management with server-side encryption using KMS
+- **Replica Bucket**: `replica-terraform-s3-versioning` - Replication destination for disaster recovery
+- **KMS Key**: `mykey` - Customer-managed KMS key for S3 encryption
+- **Replication Role**: IAM role with S3 permissions for cross-bucket replication
+
+### Security Groups
+
+- **EC2 Security Group**: `ec2_sg` - Manages ingress rules for EC2 instances
+  - HTTP (port 80) access restricted to CIDR blocks 10.0.1.0/24 and 10.0.2.0/24
+  - TCP protocol correctly configured per security best practices
+
+## Terraform Resources
+
+### KMS
+
+- `aws_kms_key.mykey` - Encryption key for S3 server-side encryption
+
+### S3
+
+- `aws_s3_bucket.terraform_state` - Primary state bucket
+- `aws_s3_bucket.replica` - Replication destination
+- `aws_s3_bucket_server_side_encription_configuration.sse_good` - SSE configuration using KMS
+- `aws_s3_bucket_notification.bucket-notification` - Event notifications
+
+### IAM
+
+- `aws_iam_role.replication` - Service role for S3 replication
+- `aws_iam_role_policy_attachment.replication` - Attaches S3 full access policy to replication role
+
+### Security
+
+- `aws_security_group.ec2_sg` - EC2 instance security group
+
+## Security Notes
+
+- S3 buckets are encrypted using customer-managed KMS keys
+- S3 replication is configured with source encryption selection criteria
+- Security groups use TCP protocol as specified by Checkov security standards
+- IAM replication role follows the principle of least privilege for S3 operations
