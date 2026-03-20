@@ -123,7 +123,13 @@ The backend.tf file configures remote state storage, ensuring state is safely st
 
 ## Overview
 
-This repository contains Terraform configurations for AWS infrastructure with security best practices and Checkov compliance fixes applied.
+The infrastructure includes:
+- A custom VPC with CIDR block 10.0.0.0/16
+- Two public subnets for distributing resources across availability zones
+- Two t2.micro EC2 instances running Ubuntu
+- Internet Gateway for external connectivity
+- Security group with HTTP and SSH access rules
+- Route table for public subnet routing
 
 ## Security Improvements
 
@@ -155,3 +161,77 @@ This repository contains Terraform configurations for AWS infrastructure with se
 ## Compliance
 
 This infrastructure has been reviewed and hardened against Checkov security checks. All resources follow AWS security best practices for encryption, access control, and network isolation.
+
+# Terraform AWS Infrastructure
+
+This Terraform project provisions a basic AWS infrastructure with VPC, subnets, EC2 instances, and networking components.
+
+## Architecture
+
+```mermaid
+graph TD
+    A[VPC: 10.0.0.0/16]
+    B[Public Subnet 1: 10.0.1.0/24]
+    C[Public Subnet 2: 10.0.2.0/24]
+    D[EC2 Instance 1]
+    E[EC2 Instance 2]
+    F[Internet Gateway]
+    G[Route Table]
+    H[Security Group]
+    
+    A --> B
+    A --> C
+    B --> D
+    C --> E
+    A --> F
+    A --> G
+    G --> B
+    G --> C
+    H --> D
+    H --> E
+    F --> G
+```
+
+## Files
+
+### vpc.tf
+
+Defines the custom VPC and public subnets for the infrastructure.
+
+### ec2_instances.tf
+
+Provisioned two t2.micro EC2 instances with Ubuntu AMI, basic system updates, and security group associations for SSH and HTTP access.
+
+### network.tf
+
+Contains Internet Gateway, route table, and route table associations to enable public routing for both subnets.
+
+### security_groups.tf
+
+Defines security group rules:
+- **SSH (Port 22):** Allows inbound traffic from anywhere (0.0.0.0/0) for remote access
+- **HTTP (Port 80):** Allows inbound traffic from the internal subnets (10.0.1.0/24 and 10.0.2.0/24)
+- **All Egress:** Allows all outbound traffic
+
+## Deployment
+
+1. Initialize Terraform:
+   ```bash
+   terraform init
+   ```
+
+2. Review the planned infrastructure:
+   ```bash
+   terraform plan
+   ```
+
+3. Apply the configuration:
+   ```bash
+   terraform apply
+   ```
+
+## Security Considerations
+
+- SSH access is open to the entire internet (0.0.0.0/0). For production use, restrict this to specific IP ranges.
+- Ensure EC2 key pairs are properly secured and managed.
+- Monitor security group rules regularly for unnecessary open access.
