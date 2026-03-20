@@ -64,8 +64,6 @@ This Terraform configuration creates a complete AWS infrastructure with:
 
 ## Usage
 
-Deploy the infrastructure using standard Terraform commands:
-
 ```bash
 terraform init
 terraform plan
@@ -123,13 +121,7 @@ The backend.tf file configures remote state storage, ensuring state is safely st
 
 ## Overview
 
-The infrastructure includes:
-- A custom VPC with CIDR block 10.0.0.0/16
-- Two public subnets for distributing resources across availability zones
-- Two t2.micro EC2 instances running Ubuntu
-- Internet Gateway for external connectivity
-- Security group with HTTP and SSH access rules
-- Route table for public subnet routing
+The configuration defines a secure AWS environment with EC2 instances, S3 storage, networking (VPCs, subnets), and security groups.
 
 ## Security Improvements
 
@@ -160,11 +152,11 @@ The infrastructure includes:
 
 ## Compliance
 
-This infrastructure has been reviewed and hardened against Checkov security checks. All resources follow AWS security best practices for encryption, access control, and network isolation.
+This infrastructure configuration passes Checkov security scanning and implements AWS Well-Architected Framework security best practices.
 
 # Terraform AWS Infrastructure
 
-This Terraform project provisions a basic AWS infrastructure with VPC, subnets, EC2 instances, and networking components.
+This repository contains Terraform configurations for AWS infrastructure deployment.
 
 ## Architecture
 
@@ -235,3 +227,47 @@ Defines security group rules:
 - SSH access is open to the entire internet (0.0.0.0/0). For production use, restrict this to specific IP ranges.
 - Ensure EC2 key pairs are properly secured and managed.
 - Monitor security group rules regularly for unnecessary open access.
+
+## Security Features
+
+The infrastructure implements the following security hardening measures:
+
+- **EC2 Encryption**: Root block devices are encrypted by default on all instances
+- **IMDSv2 Enforcement**: Metadata service token-based access (http_tokens = "required") prevents SSRF attacks
+- **Instance Monitoring**: CloudWatch monitoring enabled on all EC2 instances
+- **EBS Optimization**: EBS-optimized instances for improved performance and security
+- **S3 Public Access Block**: S3 buckets are protected from public access via bucket policies and ACLs
+- **S3 Versioning**: Version control enabled on state buckets for audit trail and recovery
+- **S3 Lifecycle Policies**: Automatic archival to cheaper storage classes and expiration of old logs
+- **S3 Logging**: Server-side logging configured to track access and changes
+- **Security Group Descriptions**: All ingress rules include descriptive labels for audit and compliance
+- **Least Privilege Networking**: Security groups restrict traffic to required ports and protocols
+
+## File Structure
+
+- `ec2_instances.tf` - EC2 instance configuration with hardened defaults
+- `s3.tf` - S3 bucket definitions with lifecycle and access control policies
+- `security_groups.tf` - VPC security group rules with descriptions
+- Additional supporting files for VPC, subnets, and networking
+
+## System Architecture
+
+```mermaid
+graph TD
+    EC2_1["EC2 Instance 1<br/>t2.micro<br/>Encrypted Root"]
+    EC2_2["EC2 Instance 2<br/>t2.micro<br/>Encrypted Root"]
+    SG["Security Group<br/>HTTP/SSH/Self"]
+    S3_State["S3 Bucket<br/>Terraform State<br/>Versioned"]
+    S3_Logs["S3 Bucket<br/>Access Logs"]
+    PubSubnet1["Public Subnet 1"]
+    PubSubnet2["Public Subnet 2"]
+    VPC["VPC"]
+    
+    VPC --> PubSubnet1
+    VPC --> PubSubnet2
+    PubSubnet1 --> EC2_1
+    PubSubnet2 --> EC2_2
+    EC2_1 --> SG
+    EC2_2 --> SG
+    S3_State --> S3_Logs
+```
